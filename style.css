@@ -18,6 +18,8 @@ body {
     width: 80vw;
     height: 100vh;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, black 100%);
+    perspective: 1000px;
+    transform-style: preserve-3d;
 }
 
 #sun {
@@ -42,6 +44,7 @@ body {
     height: 30px;
     background-color: gray;
     border-radius: 50%;
+    transform: translate(-50%, -50%) translateZ(50px);
 }
 
 .planet[data-name="mercury"] {
@@ -145,4 +148,32 @@ body {
 .planet[data-name="neptune"] {
     --orbit-radius: 380px;
     animation: rotate 25s linear infinite;
+}
+
+.planet:hover {
+    transform: translate(-50%, -50%) translateZ(50px) scale(1.2);
+    transition: transform 0.3 ease;
+}
+
+/* .planet {
+    position: relative;
+} */
+
+.planet:after {
+    content: attr(data-facts);
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    display: none;
+    white-space: nowrap;
+}
+
+.planet:hover::after {
+    display: block;
 }
