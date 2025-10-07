@@ -8,33 +8,40 @@
 </head>
 <body> 
     <div id="solar-system">
-        <div id="sun" class="celestial-body">
+        <div id="sun" class="celestial-body"></div>
             <div class="planet" data-name="mercury" data-distance="0.39 AU" data-facts="Smallest planet, closest to Sun.">
+            </div>
 
-            </div>
             <div class="planet" data-name="venus" data-distance="0.72 AU" data-facts="Hottest planet, rotates backwards.">
-                
             </div>
+
             <div class="planet" data-name="earth" data-distance="1 AU" data-facts="Our home, has water and life.">
-                
             </div>
+
             <div class="planet" data-name="mars" data-distance="1.52 AU" data-facts="Red planet, has Olympus Mons (tallest volcano).">
-                
             </div>
+
             <div class="planet" data-name="jupiter" data-distance="5.2 AU" data-facts="Largest planet, has Great Red Spot storm.">
-                
             </div>
+
             <div class="planet" data-name="saturn" data-distance="9.58 AU" data-facts="Has beautiful rings made of ice and rock.">
-                
             </div>
+
             <div class="planet" data-name="uranus" data-distance="19.2 AU" data-facts="Ice giant, tilts on its side.">
-                
             </div>
+
             <div class="planet" data-name="neptune" data-distance="30.05 AU" data-facts="Farthest planet, has strongest winds.">
-                
             </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span id="modal-close" class="modal-close">&times;</span>
+            <h2 id="modal-title"></h2>
+            <p id="modal-distance"></p>
+            <p id="modal-facts"></p>
         </div>
     </div>
+    <script src="script.js"></script>
 </body>
-<script src="script.js"></script>
 </html>
