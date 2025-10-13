@@ -5,6 +5,7 @@ const modalTitle = document.getElementById('modal-title'); // Select modal title
 const modalDistance = document.getElementById('modal-distance'); // Select modal distance element
 const modalFacts = document.getElementById('modal-facts'); // Select modal facts element
 const modalClose = document.getElementById('modal-close'); //Select modal close button
+const toggleOrbits = document.getElementById('toggle-orbits');
 
 const planetData = [ // Array storing data for each planet
     { name: 'mercury', distance: '0.39 AU', facts: 'Smallest planet, closest to Sun.' }, // Mercury data
@@ -18,15 +19,10 @@ const planetData = [ // Array storing data for each planet
 ];
 
 planets.forEach(planet => { // Loop through each planet element
-    // Click event
-    planet.addEventListener('click', () => { // Add click event listener to each planet
-        const planetName = planet.dataset.name; // Get planet name from data-name attribute
-        console.log(`Clicked on ${planetName}`); // Log the clicked planet's name
-    });
-
-    // Facts injection
-    const planetInfo = planetData.find(data => data.name === planet.dataset.name); // Find matching planet data from array
-    planet.dataset.facts = planetInfo.facts; // Update data-facts attribute with facts from array
+    // Facts Injection
+    const planetInfo = planetData.find(data => data.name === planet.dataset.name);
+    //Find matching planet data from Array
+    planet.dataset.facts = planetInfo.facts; //Update data-facts attribute with facts from array
 
     // Orbit speed
     const baseDuration = 5; // Base animation duration in seconds (for Mercury)
@@ -64,7 +60,7 @@ planets.forEach(planet => { // Loop through each planet element
         modalTitle.textContent = planetInfo.name.charAt(0).toUpperCase() + planetInfo.name.slice(1);
         modalDistance.textContent = `Distance: ${planetInfo.distance}`;
         modalFacts.textContent = `Facts: ${planetInfo.facts}`;
-        modal.style.display = 'flex';
+        modal.classList.add('active'); //Add active class to show modal with animation
     })
 
     // Drag functionality
@@ -100,5 +96,14 @@ planets.forEach(planet => { // Loop through each planet element
 });
 
 modalClose.addEventListener('click', () => {
-    modal.style.display = 'none';
+    modal.classList.remove('active'); //Remove active class to hide modal with animation
+});
+
+toggleOrbits.addEventListener('click', () => {
+    const isPaused = planets[0].style.animationPlayState === 'paused'; //Toogle between running and pause
+
+    planets.forEach(planet => {
+        planet.style.animationPlayState = isPaused ? 'running' : 'paused'; //Toggle between running and paused.
+    });
+    toggleOrbits.textContent = isPaused ? 'Pause Orbits' : 'Play Orbits'; //Toggle update button text.
 })
