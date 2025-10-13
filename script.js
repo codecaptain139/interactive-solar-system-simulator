@@ -18,13 +18,37 @@ const planetData = [ // Array storing data for each planet
     { name: 'neptune', distance: '30.05 AU', facts: 'Farthest planet, has strongest winds.' } // Neptune data
 ];
 
-planets.forEach(planet => { // Loop through each planet element
-    // Facts Injection
-    const planetInfo = planetData.find(data => data.name === planet.dataset.name);
-    //Find matching planet data from Array
-    planet.dataset.facts = planetInfo.facts; //Update data-facts attribute with facts from array
+let currentDraggedPlanet = null; // Global: Track which planet is being dragged
+let isDragging = false; // Global flag for dragging
+let currentX, currentY; // Global mouse positions
 
-    // Orbit speed
+// Single document listeners (outside loop!)
+document.addEventListener('mousemove', (e) => { // When mouse moves anywhere on document
+    if (isDragging && currentDraggedPlanet) { // Only if dragging active and planet selected
+        const deltaX = e.clientX - currentX; // Calculate change in X position
+        const deltaY = e.clientY - currentY; // Calculate change in Y position
+        currentX = e.clientX; // Update current X position
+        currentY = e.clientY; // Update current Y position
+        currentDraggedPlanet.style.transform = `translate(-50%, -50%) translateZ(50px) translate(${deltaX}px, ${deltaY}px)`; // Move planet based on mouse movement
+    }
+});
+
+document.addEventListener('mouseup', () => { // When mouse is released anywhere
+    if (isDragging && currentDraggedPlanet) { // Only if dragging was active
+        isDragging = false; // Reset dragging flag
+        currentDraggedPlanet.style.animationPlayState = 'running'; // Resume orbit animation
+        currentDraggedPlanet.style.transform = `translate(-50%, -50%) translateZ(50px)`; // Reset to original orbit position
+        currentDraggedPlanet.style.cursor = 'grab'; // Reset cursor to grab icon
+        currentDraggedPlanet = null; // Clear current planet
+    }
+});
+
+planets.forEach(planet => { // Loop through each planet element
+    // Facts Injection & Orbit speed (single planetInfo)
+    const planetInfo = planetData.find(data => data.name === planet.dataset.name); // Find matching planet data from array (once!)
+    if (!planetInfo) return; // Safety: Skip if no match
+    planet.dataset.facts = planetInfo.facts; // Update data-facts attribute with facts from array
+
     const baseDuration = 5; // Base animation duration in seconds (for Mercury)
     const distance = parseFloat(planetInfo.distance); // Convert distance (e.g., '0.39 AU') to number
     const duration = baseDuration + (distance * 2); // Calculate duration: farther planets = slower (e.g., Mercury: 5s, Neptune: ~65s)
@@ -56,54 +80,43 @@ planets.forEach(planet => { // Loop through each planet element
         planet.style.transform = `translate(-50%, -50%) translateZ(50px) scale(1)`; // Reset to original transform
     });
 
-    planet.addEventListener('click', () => {
-        modalTitle.textContent = planetInfo.name.charAt(0).toUpperCase() + planetInfo.name.slice(1);
-        modalDistance.textContent = `Distance: ${planetInfo.distance}`;
-        modalFacts.textContent = `Facts: ${planetInfo.facts}`;
-        modal.classList.add('active'); //Add active class to show modal with animation
-    })
+    // Click to open modal (prevent drag start on click)
+    planet.addEventListener('click', (e) => { // When planet is clicked
+        e.preventDefault(); // Stop drag if click
+        modalTitle.textContent = planetInfo.name.charAt(0).toUpperCase() + planetInfo.name.slice(1); // Set modal title (capitalize name)
+        modalDistance.textContent = `Distance: ${planetInfo.distance}`; // Set modal distance
+        modalFacts.textContent = `Facts: ${planetInfo.facts}`; // Set modal facts
+        modal.classList.add('active'); // Add active class to show modal with animation
+    });
 
-    // Drag functionality
-    let isDragging = false; // Flag to track if planet is being dragged
-    let currentX; // Store current mouse X position
-    let currentY; // Store current mouse Y position
+    // Drag functionality (per-planet mousedown only)
     planet.addEventListener('mousedown', (e) => { // When mouse is pressed on planet
+        if (e.button !== 0) return; // Only left click
+        currentDraggedPlanet = planet; // Set current planet
         isDragging = true; // Set dragging flag to true
         planet.style.animationPlayState = 'paused'; // Pause orbit animation during drag
         currentX = e.clientX; // Get initial mouse X position
         currentY = e.clientY; // Get initial mouse Y position
         planet.style.cursor = 'grabbing'; // Change cursor to grabbing icon
-    });
-
-    document.addEventListener('mousemove', (e) => { // When mouse moves anywhere on document
-        if (isDragging) { // Only if dragging is active
-            const deltaX = e.clientX - currentX; // Calculate change in X position
-            const deltaY = e.clientY - currentY; // Calculate change in Y position
-            currentX = e.clientX; // Update current X position
-            currentY = e.clientY; // Update current Y position
-            planet.style.transform = `translate(-50%, -50%) translateZ(50px) translate(${deltaX}px, ${deltaY}px)`; // Move planet based on mouse movement
-        }
-    });
-
-    document.addEventListener('mouseup', () => { // When mouse is released anywhere
-        if (isDragging) { // Only if dragging was active
-            isDragging = false; // Reset dragging flag
-            planet.style.animationPlayState = 'running'; // Resume orbit animation
-            planet.style.transform = `translate(-50%, -50%) translateZ(50px)`; // Reset to original orbit position
-            planet.style.cursor = 'grab'; // Reset cursor to grab icon
-        }
+        e.preventDefault(); // Prevent text selection or other defaults
     });
 });
 
 modalClose.addEventListener('click', () => {
-    modal.classList.remove('active'); //Remove active class to hide modal with animation
+    modal.classList.remove('active'); // Remove active class to hide modal with animation
+});
+
+// Click outside modal to close (Bonus UX)
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.classList.remove('active');
+    }
 });
 
 toggleOrbits.addEventListener('click', () => {
-    const isPaused = planets[0].style.animationPlayState === 'paused'; //Toogle between running and pause
-
-    planets.forEach(planet => {
-        planet.style.animationPlayState = isPaused ? 'running' : 'paused'; //Toggle between running and paused.
+    const isPaused = planets[0].style.animationPlayState === 'paused'; // Check if planets are paused (check first planet)
+    planets.forEach(planet => { // Loop through all planets
+        planet.style.animationPlayState = isPaused ? 'running' : 'paused'; // Toggle between running and paused
     });
-    toggleOrbits.textContent = isPaused ? 'Pause Orbits' : 'Play Orbits'; //Toggle update button text.
-})
+    toggleOrbits.textContent = isPaused ? 'Pause Orbits' : 'Play Orbits'; // Update button text
+});
